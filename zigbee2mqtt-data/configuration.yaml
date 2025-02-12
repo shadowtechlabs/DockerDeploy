@@ -1,0 +1,13 @@
+version: 4
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://mqtt
+  user: stl_admin
+  password: st2012
+serial:
+  port: tcp://10.0.0.20:6638
+  adapter: ember
+frontend:
+  enabled: true
+homeassistant:
+  enabled: false

@@ -1,0 +1,44 @@
+services:
+  mqtt:
+    container_name: mqtt_server
+    image: eclipse-mosquitto:2.0
+    volumes:
+      - "./mosquitto-data/config:/mosquitto/config"
+      - "./mosquitto-data/data:/mosquitto/data"
+      - "./mosquitto-data/log:/mosquitto/log"
+#    ports:
+#      - "1883:1883"
+#      - "9001:9001"
+    networks:
+        shadownet:
+            ipv4_address: 10.0.0.205
+
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    image: koenkk/zigbee2mqtt
+    volumes:
+      - ./zigbee2mqtt-data:/app/data
+      - /run/udev:/run/udev:ro
+#    ports:
+#      - "8080:8080"
+    environment:
+      - TZ=American/Detroit
+      - ZIGBEE2MQTT_CONFIG_MQTT_USER=stl_admin
+      - ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD=st2012
+      - ZIGBEE2MQTT_CONFIG_MQTT_SERVER=mqtt://10.0.0.206
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_PORT=8080
+    networks:
+        shadownet:
+            ipv4_address: 10.0.0.207
+    depends_on:
+      - mqtt
+networks:
+    shadownet:
+        name: shadownet
+        external: true
+
+
+### notes
+### added zigbee2mqtt and mqtt server to external shadownet network using ipvlan l2 driver
+# ports are not needed for l2 driver networks

@@ -1,0 +1,20 @@
+services:
+  shadownet_avp:
+    container_name: shadownet_avp
+    image: shadowtechlabs/dod:latest
+    volumes:
+      - "./shadownet-config:/hunter/Software/Config"
+      - "./shadownet-logs:/hunter/Software/logs"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    restart: unless-stopped
+# ports are not needed for l2 driver networks
+#    ports:
+#      -  1883:1883
+    networks:
+      shadownet:
+        ipv4_address: 10.0.0.201
+networks:
+    shadownet:
+        name: shadownet
+        external: true

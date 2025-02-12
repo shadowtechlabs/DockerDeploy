@@ -1,0 +1,60 @@
+services:
+  shadownet_avp:
+    container_name: shadownet_avp
+    image: shadowtechlabs/dod:latest
+    volumes:
+        - "./shadownet-config:/hunter/Software/Config"
+        - "./shadownet-logs:/hunter/Software/logs"
+        - "/etc/timezone:/etc/timezone:ro"
+        - "/etc/localtime:/etc/localtime:ro"
+    restart: always
+    ports:
+      -  8888:8888
+      -  38423:38423
+      -  9010:38423
+      -  41675:41675
+      -  50000:50000
+      -  1025:1025
+      -  587:587
+      -  1883:1883
+    networks:
+        shadownet:
+            ipv4_address: 10.20.21.201
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt_broker
+    restart: always
+    volumes:
+      - "./mosquitto-data:/mosquitto"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    command: "mosquitto -c /mosquitto.conf"
+    networks:
+        shadownet:
+            ipv4_address: 10.20.21.202
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    restart: always
+    image: koenkk/zigbee2mqtt
+    volumes:
+      - ./zigbee2mqtt-data:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      - 8080:8080
+    environment:
+      - TZ=America/Chicago
+      - ZIGBEE2MQTT_CONFIG_MQTT_SERVER=mqtt://10.20.21.202
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_PORT=8080
+      - ZIGBEE2MQTT_CONFIG_SERIAL_PORT=/dev/ttyUSB0
+    devices:
+      - /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/dev/ttyUSB0
+    networks:
+        shadownet:
+            ipv4_address: 10.20.21.203
+    depends_on:
+      - mqtt
+networks:
+    shadownet:
+        name: shadownet
+        external: true
