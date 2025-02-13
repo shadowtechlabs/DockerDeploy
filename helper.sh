@@ -16,7 +16,7 @@ check_root() {
         echo "Error: This script must be run as root"
         exit 1
     else
-        ln -s /home/user/shok/helper.sh /usr/local/bin/helper &>1 /dev/null
+        ln -s $PWD/helper.sh /usr/local/bin/helper &>1 /dev/null
     fi
 }
 
