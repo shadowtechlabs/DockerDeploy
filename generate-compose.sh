@@ -35,7 +35,7 @@ validate_ip() {
 
 
 # zigbee2mqtt file generation
-zigbee2mqtt () {
+zigbee2mqtt() {
     # Prompt user for values
 
     while true; do
@@ -119,7 +119,7 @@ EOF
 }
 
 # avp file generation
-avp () {
+avp() {
 
 # Gather IP info
     while true; do
