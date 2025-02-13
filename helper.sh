@@ -1,5 +1,6 @@
 #!/bin/bash
 # avp helper script - SB Jan '25
+#v.1
 
 check_root() {
     if [ "$(id -u)" -ne 0 ]; then
@@ -11,7 +12,12 @@ check_root() {
 check_docker() {
     if ! command -v docker &> /dev/null; then
         echo "Error: Docker is not installed"
-        exit 1
+        if confirm "Do you want to install it now?"; then
+            install_docker
+        else
+            echo "Docker is required. Exiting..."
+            exit 1
+        fi
     fi
     
     if ! docker info &> /dev/null; then
@@ -20,12 +26,112 @@ check_docker() {
     fi
 }
 
+confirm() {
+  # Usage: confirm "Your prompt message"
+  while true; do
+    read -r -p "$1 [y/n]: " answer
+    case "$answer" in
+      [Yy]* ) return 0 ;;  # Yes
+      [Nn]* ) return 1 ;;  # No
+      * ) echo "Please answer yes or no." ;;
+    esac
+  done
+}
+
+install_docker() {
+    # Ensure the script is running on Ubuntu
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        if [ "$ID" != "ubuntu" ]; then
+            echo "This installation script is intended for Ubuntu. Exiting."
+            return 1
+        fi
+    else
+        echo "Unable to detect the operating system. Exiting."
+        return 1
+    fi
+
+    # Remove any unofficial or legacy Docker releases
+    echo "Removing any unofficial Docker installations if they exist..."
+    sudo apt-get remove -y docker docker-engine docker.io containerd runc
+
+    # Remove existing Docker Compose binary (possibly unofficial)
+    if [ -f /usr/local/bin/docker-compose ]; then
+        echo "Removing existing Docker Compose installation..."
+        sudo rm /usr/local/bin/docker-compose
+    fi
+
+    echo "Updating apt package index and installing prerequisites..."
+    sudo apt-get update
+    sudo apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release
+
+    echo "Adding Docker's official GPG key..."
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+    echo "Setting up the Docker stable repository..."
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    echo "Updating apt package index..."
+    sudo apt-get update
+
+    echo "Installing Docker Engine..."
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+    echo "Installing Docker Compose..."
+    # Fetch the latest release tag for Docker Compose from GitHub
+    DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)
+    sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+
+    echo "Adding current user ($USER) to the docker group..."
+    sudo usermod -aG docker $USER
+
+    echo "Installation complete. Please log out and log back in for group changes to take effect."
+}
+
 check_compose_file() {
     local file=$1
     if [ ! -f "$file" ]; then
         echo "Error: Docker Compose file '$file' not found"
-        exit 1
+        if confirm "Do you want to create it now?"; then
+            ./generate_files.sh --$file
+        else
+            echo "Aborting..."
+            exit 1
+        fi
     fi
+}
+
+disable_ipv6() {
+
+    # Path to sysctl config
+    local conf="/etc/sysctl.conf"
+    # Lines to be appended
+    local lines=(
+        "net.ipv6.conf.all.disable_ipv6 = 1"
+        "net.ipv6.conf.default.disable_ipv6 = 1"
+        "net.ipv6.conf.lo.disable_ipv6 = 1"
+    )
+
+    # Append the lines if they aren't already in the file
+    for line in "${lines[@]}"; do
+        if ! grep -qF "$line" "$conf"; then
+            echo "$line" | sudo tee -a "$conf" > /dev/null
+            echo "Appended: $line"
+        else
+            echo "Line already present: $line"
+        fi
+    done
+
+    # Reload sysctl to apply settings
+    sysctl -p
 }
 
 validate_ip() {
@@ -52,6 +158,7 @@ check_interface() {
     fi
     return 0
 }
+
 
 create_network() {
     while true; do
@@ -169,7 +276,7 @@ fi
 
 show_menu() {
     PS3="Please select an option: "
-    options=("Check Status" "Start AVP" "Stop AVP" "Start Zigbee2MQTT" "Stop Zigbee2MQTT" "Create Network" "Exit")
+    options=("Check Status" "Start AVP" "Stop AVP" "Start Zigbee2MQTT" "Stop Zigbee2MQTT" "Create Network" "Disable IPV6" "Exit")
     select opt in "${options[@]}"
     do
         case $opt in
@@ -195,6 +302,10 @@ show_menu() {
                 ;;
             "Create Network")
                 create_network
+                break
+                ;;
+            "Disable IPV6")
+                disable_ipv6
                 break
                 ;;
             "Exit")
@@ -233,8 +344,11 @@ main() {
             --create-network)
                 create_network
                 ;;
+            --disable-ipv6)
+                disable_ipv6
+                ;;
             *)
-                echo "Usage: $0 [--check-status|--avp-start|--avp-stop|--zigbee2mqtt-start|--zigbee2mqtt-stop|--create-network]"
+                echo "Usage: $0 [--check-status|--avp-start|--avp-stop|--zigbee2mqtt-start|--zigbee2mqtt-stop|--create-network|--disable-ipv6]"
                 exit 1
                 ;;
         esac

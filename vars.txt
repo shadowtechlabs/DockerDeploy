@@ -1,0 +1,10 @@
+ZBRADIOIP - 
+  zigbee2mqtt configuration.yaml
+  line 8
+  zigbee radio IP address and port 
+  #port: tcp://10.0.0.20:6638
+
+AVPIP
+  shadownet_avp ip address
+
+
