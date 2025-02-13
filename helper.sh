@@ -161,6 +161,68 @@ validate_subnet() {
     fi
 }
 
+
+# Function to detect the active adapter based on the default route.
+detect_active_adapter() {
+  # The default route usually specifies the active network adapter.
+  default_iface=$(ip route | awk '/default/ {print $5; exit}')
+  echo "$default_iface"
+}
+
+# Function to list all physical ethernet adapters, ignoring loopback and docker/bridge interfaces.
+list_physical_adapters() {
+  for iface in $(ls /sys/class/net); do
+    # Skip loopback interface
+    if [ "$iface" == "lo" ]; then
+      continue
+    fi
+    # Skip docker and bridge interfaces (common naming conventions)
+    if [[ $iface == docker* ]] || [[ $iface == br-* ]]; then
+      continue
+    fi
+    # Check if the interface is physical by ensuring a 'device' directory exists
+    if [ -d /sys/class/net/"$iface"/device ]; then
+      echo "$iface"
+    fi
+  done
+}
+
+# Function to display a selection menu with the active adapter suggested.
+select_network_adapter() {
+  active_adapter=$(detect_active_adapter)
+  echo "Detected active network adapter: $active_adapter"
+  
+  # Build an array of available adapters.
+  adapters=()
+  while IFS= read -r adapter; do
+    adapters+=("$adapter")
+  done < <(list_physical_adapters)
+  
+  # If the active adapter isn’t already first in the list, move it to the top.
+  if [[ ${adapters[0]} != "$active_adapter" ]]; then
+    # Remove active_adapter from its current position if it exists.
+    for i in "${!adapters[@]}"; do
+      if [ "${adapters[$i]}" = "$active_adapter" ]; then
+        unset 'adapters[i]'
+      fi
+    done
+    # Prepend the active adapter.
+    adapters=("$active_adapter" "${adapters[@]}")
+  fi
+  
+  echo "Select a network adapter for the parent interface:"
+  PS3="Enter choice number: "
+  select adapter in "${adapters[@]}"; do
+    if [[ -n "$adapter" ]]; then
+      echo "You selected: $adapter"
+      break
+    else
+      echo "Invalid selection. Try again."
+    fi
+  done
+}
+
+
 check_interface() {
     if ! ip link show "$1" >/dev/null 2>&1; then
         return 1
@@ -171,20 +233,20 @@ check_interface() {
 
 create_network() {
     while true; do
-        read -p "Enter the network name: " network_name
+        read -p "Enter the network name: (shadownet) " network_name
         if [ -n "$network_name" ]; then
             break
         else
-            echo "Network name cannot be empty. Please try again."
+            network_name=shadownet
         fi
     done
 
     while true; do
-        read -p "Enter the parent ethernet adapter name (e.g., eth0): " parent_interface
-        if check_interface "$parent_interface"; then
+        select_network_adapter
+        if check_interface "$adapter"; then
             break
         else
-            echo "Interface $parent_interface does not exist. Please try again."
+            echo "Interface $adapter does not exist. Please try again."
         fi
     done
 
@@ -216,7 +278,7 @@ create_network() {
 
     echo "Creating Docker network with the following configuration:"
     echo "Network Name: $network_name"
-    echo "Parent Interface: $parent_interface"
+    echo "Parent Interface: $adapter"
     echo "Subnet: $subnet"
     echo "Gateway: $gateway"
 
@@ -224,7 +286,7 @@ create_network() {
         --driver ipvlan \
         --subnet "$subnet" \
         --gateway "$gateway" \
-        -o parent="$parent_interface" \
+        -o parent="$adapter" \
         -o ipvlan_mode=l2 \
         "$network_name"
 
