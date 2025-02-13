@@ -36,8 +36,8 @@ zigbee2mqtt() {
     ZB2MQTT_COMPOSE="zigbee2mqtt-compose.yml"
 
     # Prune old configs
-    rm $CONFIG_YAML
-    rm $ZB2MQTT_COMPOSE
+    rm $CONFIG_YAML 2>/dev/null
+    rm $ZB2MQTT_COMPOSE 2>/dev/null
 
     # Create and populate configuration.yaml
     mkdir -p {zigbee2mqtt-data}
@@ -117,7 +117,7 @@ avp() {
     AVP_COMPOSE="avp-compose.yml"
     
     # Prune old config
-    rm $AVP_COMPOSE
+    rm $AVP_COMPOSE 2>/dev/null
 
     # Create and populate avp-compose.yml
     cat <<EOF > "$AVP_COMPOSE"
