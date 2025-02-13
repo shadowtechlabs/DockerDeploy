@@ -1,6 +1,6 @@
 #!/bin/bash
 # avp helper script - SB Jan '25
-#v.1
+#v.1#
 
 auto_update() {
     if confirm "Do you want to run system updates now?"; then

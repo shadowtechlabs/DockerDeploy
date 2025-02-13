@@ -1,6 +1,6 @@
 #!/bin/bash
 #generate docker config files for shok deployments - sb 2/25
-#v.1
+#v.1#
 
 
 if [ $# -eq 0 ]; then
