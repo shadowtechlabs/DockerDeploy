@@ -3,27 +3,6 @@
 #v.1#
 
 
-if [ $# -eq 0 ]; then
-    zigbee2mqtt
-    avp
-else
-    case "$1" in
-        --avp-compose.yml)
-            avp
-            ;;
-        --zigbee2mqtt-compose.yml)
-            zigbee2mqtt
-            ;;
-#        --avp-stop)
-#            stop_avp
-#            ;;
-        *)
-            echo "Usage: $0 [--avp-compose.yml|--zigbee2mqtt-compose.yml]"
-            exit 1
-            ;;
-    esac
-fi
-
 validate_ip() {
     local ip=$1
     if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
@@ -164,3 +143,24 @@ EOF
     echo "avp file generation successful"
 
 }
+
+if [ $# -eq 0 ]; then
+    zigbee2mqtt
+    avp
+else
+    case "$1" in
+        --avp-compose.yml)
+            avp
+            ;;
+        --zigbee2mqtt-compose.yml)
+            zigbee2mqtt
+            ;;
+#        --avp-stop)
+#            stop_avp
+#            ;;
+        *)
+            echo "Usage: $0 [--avp-compose.yml|--zigbee2mqtt-compose.yml]"
+            exit 1
+            ;;
+    esac
+fi
