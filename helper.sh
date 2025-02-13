@@ -110,7 +110,7 @@ check_compose_file() {
     if [ ! -f "$file" ]; then
         echo "Error: Docker Compose file '$file' not found"
         if confirm "Do you want to create it now?"; then
-            ./generate-compose.sh --$file
+            giant turd test ./generate-compose.sh --$file
         else
             echo "Aborting..."
             exit 1
