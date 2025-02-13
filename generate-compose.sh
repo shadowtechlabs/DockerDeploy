@@ -40,7 +40,7 @@ zigbee2mqtt() {
     rm $ZB2MQTT_COMPOSE 2>/dev/null
 
     # Create and populate configuration.yaml
-    mkdir -p {zigbee2mqtt-data}
+    mkdir -p zigbee2mqtt-data
     cat <<EOF > "$CONFIG_YAML"
 version: 4
 mqtt:
