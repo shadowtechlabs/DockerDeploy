@@ -2,8 +2,6 @@
 # avp helper script - SB Jan '25
 #v.2 permissions
 
-ln -s /home/user/shok/helper.sh /usr/local/bin/helper
-
 auto_update() {
     if confirm "Do you want to run system updates now?"; then
         apt update && apt upgrade -y
@@ -17,6 +15,8 @@ check_root() {
     if [ "$(id -u)" -ne 0 ]; then
         echo "Error: This script must be run as root"
         exit 1
+    else
+        ln -s /home/user/shok/helper.sh /usr/local/bin/helper &>1 /dev/null
     fi
 }
 
