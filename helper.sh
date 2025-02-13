@@ -2,6 +2,8 @@
 # avp helper script - SB Jan '25
 #v.2 permissions
 
+ln -s /home/user/shok/helper.sh /usr/local/bin/helper
+
 auto_update() {
     if confirm "Do you want to run system updates now?"; then
         apt update && apt upgrade -y
