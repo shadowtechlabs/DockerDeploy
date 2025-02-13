@@ -2,6 +2,15 @@
 # avp helper script - SB Jan '25
 #v.1
 
+auto_update() {
+    if confirm "Do you want to run system updates now?"; then
+        apt update && apt upgrade -y
+    else
+        echo "Skipping updates."
+    fi
+
+}
+
 check_root() {
     if [ "$(id -u)" -ne 0 ]; then
         echo "Error: This script must be run as root"
