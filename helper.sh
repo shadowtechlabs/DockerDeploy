@@ -238,6 +238,7 @@ create_network() {
             break
         else
             network_name=shadownet
+            break
         fi
     done
 
