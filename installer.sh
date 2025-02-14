@@ -53,16 +53,21 @@ installer() {
 
     # Make directory and extract files
     user_group
-    install -d -o $USER -g $UGROUP $SHOK
-    tar -xf shok.tar.gz -C $SHOK
+    install -d -o $USER -g $UGROUP $shokenv
+    tar -xf shok.tar.gz -C $shokenv
 
     #Create helper script link
     if [ ! -L /usr/local/bin/helper ]; then
-    ln -s $SHOK/helper.sh /usr/local/bin/helper
+    ln -s $shokenv/helper.sh /usr/local/bin/helper
     fi
 
-echo "SHOK base scripts install completed. You may need to log out and back in for the SHOK env variable to work."
-echo "The working directory for these scripts is "$SHOK
+    echo "SHOK base scripts install completed."
+    if [ -z "$SHOK" ]; then
+        echo "The SHOK global variable hasn't registered yet. Please logout and login again."
+        echo "The working directory is now "$shokenv
+    else
+        echo "The working directory for these scripts is "$SHOK"."
+    fi
 
 }
 
