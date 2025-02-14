@@ -48,6 +48,8 @@ installer() {
             echo "Environment variable already present: $line"
         fi
     done
+    
+    . /etc/environment
 
     # Make directory and extract files
     user_group
@@ -63,12 +65,10 @@ installer() {
 
 if [ $# -eq 0 ]; then
     installer
-    exec bash
 else
     case "$1" in
         --install)
             installer
-            exec bash
             ;;
 #        --uninstall)
 #            uninstall
