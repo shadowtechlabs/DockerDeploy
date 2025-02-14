@@ -23,6 +23,13 @@ USAGE:
 Working directory: /opt/shok
 
 From the working directory, you may run helper to show the following menu:
-1) Check Status       3) Stop AVP           5) Stop Zigbee2MQTT   7) Disable IPV6
-2) Start AVP          4) Start Zigbee2MQTT  6) Create Network     8) Exit
+1) Check Status
+2) Start AVP
+3) Stop AVP
+4) Start Zigbee2MQTT
+5) Stop Zigbee2MQTT
+6) Create Network
+7) Disable IPV6
+8) Exit
 
+Report errors or comments to Shane.
