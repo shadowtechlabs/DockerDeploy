@@ -61,6 +61,9 @@ installer() {
     ln -s $SHOK/helper.sh /usr/local/bin/helper
     fi
 
+echo "SHOK base scripts install completed. You may need to log out and back in for the SHOK env variable to work."
+echo "The working directory for these scripts is "$SHOK
+
 }
 
 if [ $# -eq 0 ]; then
