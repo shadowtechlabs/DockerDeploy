@@ -34,6 +34,7 @@ user_group() {
 installer() {
     # Declare SHOK home
     local shokenv="SHOK=/opt/shok"
+    local shokinst=/opt/shok
     local conf=/etc/environment
     # Lines to be appended
     local lines=(
@@ -53,18 +54,18 @@ installer() {
 
     # Make directory and extract files
     user_group
-    install -d -o $USER -g $UGROUP $shokenv
-    tar -xf shok.tar -C $shokenv
+    install -d -o $USER -g $UGROUP $shokinst
+    tar -xf shok.tar -C $shokinst
 
     #Create helper script link
     if [ ! -L /usr/local/bin/helper ]; then
-    ln -s $shokenv/helper.sh /usr/local/bin/helper
+    ln -s $shokinst/helper.sh /usr/local/bin/helper
     fi
 
     echo "SHOK base scripts install completed."
     if [ -z "$SHOK" ]; then
         echo "The SHOK global variable hasn't registered yet. Please logout and login again."
-        echo "The working directory is now "$shokenv
+        echo "The working directory is now "$shokinst
     else
         echo "The working directory for these scripts is "$SHOK"."
     fi
