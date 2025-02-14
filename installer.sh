@@ -54,7 +54,7 @@ installer() {
     # Make directory and extract files
     user_group
     install -d -o $USER -g $UGROUP $shokenv
-    tar -xf shok.tar.gz -C $shokenv
+    tar -xf shok.tar -C $shokenv
 
     #Create helper script link
     if [ ! -L /usr/local/bin/helper ]; then
