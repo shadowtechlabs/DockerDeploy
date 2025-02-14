@@ -6,14 +6,34 @@ check_root() {
     if [ "$(id -u)" -ne 0 ]; then
         echo "Error: This script must be run as root"
         exit 1
-    else
-        USER=$(id -u)
-        UGROUP=$(id -g)
     fi
 }
 
-installer() {
+user_group() {
+    while true; do
+        read -p "What user should own the application directory? (stl_admin): " USER
+        if [ -n "$USER" ]; then
+            break
+        else
+            USER=stl_admin
+            break
+        fi
+    done
+    while true; do
+        read -p "What user group should own the application directory? (stl_admin): " UGROUP
+        if [ -n "$UGROUP" ]; then
+            break
+        else
+            UGROUP=stl_admin
+            break
+        fi
+    done
+    read -p 
+    
 
+}
+
+installer() {
     # Declare SHOK home
     local shokenv="SHOK=/opt/shok"
     local conf=/etc/environment
@@ -33,8 +53,9 @@ installer() {
     source /etc/environment
 
     # Make directory and extract files
+    user_group
     install -d -o $USER -g $UGROUP $SHOK
-    tar -xf shok.tar.gz $SHOK
+    tar -xf shok.tar.gz -C $SHOK
 
     #Create helper script link
     if [ ! -f /usr/local/bin/helper ]; then
