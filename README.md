@@ -11,7 +11,8 @@ INSTALLING:
 Usage: download and run the installer using the following command:
 
 git clone https://github.com/shadowtechlabs/DockerDeploy
-cd DockerDeploy && chmod +x installer.sh
+cd DockerDeploy
+chmod +x installer.sh
 sudo ./installer.sh
 
 The working directory after the script has been ran will be /opt/shok.
