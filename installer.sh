@@ -57,7 +57,7 @@ installer() {
     tar -xf shok.tar.gz -C $SHOK
 
     #Create helper script link
-    if [ ! -e /usr/local/bin/helper ]; then
+    if [ ! -L /usr/local/bin/helper ]; then
     ln -s $SHOK/helper.sh /usr/local/bin/helper
     fi
 
