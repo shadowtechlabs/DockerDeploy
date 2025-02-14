@@ -48,6 +48,7 @@ installer() {
             echo "Environment variable already present: $line"
         fi
     done
+    
     source /etc/environment
 
     # Make directory and extract files
@@ -56,7 +57,7 @@ installer() {
     tar -xf shok.tar.gz -C $SHOK
 
     #Create helper script link
-    if [ ! -f /usr/local/bin/helper ]; then
+    if [ ! -e /usr/local/bin/helper ]; then
     ln -s $SHOK/helper.sh /usr/local/bin/helper
     fi
 
