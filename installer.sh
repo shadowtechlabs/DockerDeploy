@@ -9,7 +9,6 @@ check_root() {
     else
         USER=$(id -u)
         UGROUP=$(id -g)
-        fi
     fi
 }
 
