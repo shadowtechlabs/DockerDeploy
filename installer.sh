@@ -28,8 +28,6 @@ user_group() {
             break
         fi
     done
-    read -p 
-    
 
 }
 
